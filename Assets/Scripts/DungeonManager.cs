@@ -12,15 +12,16 @@ public enum Direction
   West
 }
 
-public class DungeonManager
+public class DungeonManager : MonoBehaviour
 {
+  public static BoardManager boardManager;
   public int numFloors = 5;
   public int currentFloor;
 
   public static int mapWidth = 30;
   public static int mapHeight = 30;
 
-  public static int numDoorsRemaining = 30;
+  public int numDoorsRemaining = 15;
 	public static int numOpenedDoors = 0;
 	public static int numUnopenedDoors = 0;
 	public static int numFoodRemaining = 10;
@@ -31,9 +32,10 @@ public class DungeonManager
   private Direction entranceDirection;
   private Direction exitDirection;
 
-  public DungeonManager (int numFloors)
+
+  public void initializeDungeon()
   {
-    numFloors = numFloors;
+    boardManager = GetComponent<BoardManager>();
     currentFloor = numFloors - 1;
     entranceDirection = Direction.South;
     exitDirection = Direction.North;
@@ -43,11 +45,33 @@ public class DungeonManager
     Vector3 mapCoordinates = new Vector3(mapX, mapY, 0);
     currentRoom = buildRoom(currentFloor, mapCoordinates);
     roomMap[mapX, mapY] = currentRoom;
+    boardManager.initFirstRoom(currentRoom);
+  }
+
+  public void setupNextRoom()
+  {
+    Vector3 playerPosition = boardManager.getPlayerPosition();
+    exitDirection = currentRoom.getDoorDirectionAtPosition(playerPosition);
+    entranceDirection = reverseDirection(exitDirection);
+    Vector3 exitingCoordinates = currentRoom.mapCoordinates;
+    Vector3 newCoordinates = exitingCoordinates + getDirectionOffsetVector(exitDirection);
+
+    Room roomEntered = roomMap[(int)newCoordinates.x,(int)newCoordinates.y];
+    if (roomEntered == null)
+    {
+      roomEntered = buildRoom(currentFloor, newCoordinates);
+      roomMap[(int)newCoordinates.x,(int)newCoordinates.y] = roomEntered;
+    }
+
+    Vector3 playerStartPosition = roomEntered.getDoorPositionAtDirection(entranceDirection)
+                                            + getDirectionOffsetVector(exitDirection);
+    boardManager.changeRooms(roomEntered, playerStartPosition);
+
+    currentRoom = roomEntered;
   }
 
   private Room buildRoom(int floor, Vector3 coordinates)
   {
-    Room newRoom =  new Room(numFloors - 1, coordinates, numFoodRemaining, numEnemiesRemaining);
     List<Direction> knownConnections = new List<Direction>();
     List<Direction> availableConnections = new List<Direction>();
     surveySurroundingRooms(coordinates, out knownConnections, out availableConnections);
@@ -62,6 +86,9 @@ public class DungeonManager
     numUnopenedDoors += numDoorsToPlace - knownConnections.Count;
     numDoorsRemaining -= numDoorsToPlace;
     numOpenedDoors += knownConnections.Count;
+
+
+    Room newRoom =  new Room(numFloors - 1, coordinates, numFoodRemaining, numEnemiesRemaining);
 
     while (numDoorsToPlace > 0)
     {
@@ -108,23 +135,6 @@ public class DungeonManager
     }
   }
 
-  public void setupNextRoom(Vector3 playerPosition)
-  {
-    exitDirection = currentRoom.getDoorDirectionAtPosition(playerPosition);
-		entranceDirection = reverseDirection(exitDirection);
-    Vector3 exitingCoordinates = currentRoom.mapCoordinates;
-    Vector3 newCoordinates = exitingCoordinates + getDirectionOffsetVector(exitDirection);
-
-    Room roomEntered = roomMap[(int)newCoordinates.x,(int)newCoordinates.y];
-    if (roomEntered == null)
-		{
-			roomEntered = buildRoom(currentFloor, newCoordinates);
-			roomMap[(int)newCoordinates.x,(int)newCoordinates.y] = roomEntered;
-		}
-
-    currentRoom = roomEntered;
-  }
-
   static private Direction reverseDirection(Direction inDirection)
   {
     switch(inDirection)
@@ -156,11 +166,6 @@ public class DungeonManager
         return new Vector3(-1,0,0);
     }
     return new Vector3(0,0,0);
-  }
-
-  public Vector3 getPlayerStartPosition()
-  {
-    return currentRoom.getDoorPositionAtDirection(entranceDirection) + getDirectionOffsetVector(exitDirection);
   }
 
   public Room getCurrentRoom()

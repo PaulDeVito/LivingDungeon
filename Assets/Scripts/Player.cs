@@ -86,7 +86,7 @@ public class Player : MovingObject
             foodText.text = "Food: " + food;
     		other.gameObject.SetActive(false);
             SoundManager.instance.randomizeSfx(eatSound1, eatSound2);
-            GameManager.getBoardManager().getDungeonManager().getCurrentRoom().removeFoodAtPosition(other.transform.position);
+            GameManager.getDungeonManager().getCurrentRoom().removeFoodAtPosition(other.transform.position);
     	}
 
     	else if(other.tag == "Soda")
@@ -95,7 +95,7 @@ public class Player : MovingObject
             foodText.text = "Food: " + food;
     		other.gameObject.SetActive(false);
             SoundManager.instance.randomizeSfx(drinkSound1, drinkSound2);
-            GameManager.getBoardManager().getDungeonManager().getCurrentRoom().removeFoodAtPosition(other.transform.position);
+            GameManager.getDungeonManager().getCurrentRoom().removeFoodAtPosition(other.transform.position);
 
     	}
     }

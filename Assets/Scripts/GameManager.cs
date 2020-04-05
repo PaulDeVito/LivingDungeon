@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
 	public static GameManager instance;
-	public static BoardManager boardManager;
+	public static DungeonManager dungeonManager;
+
 
 	public float levelStartDelay = 2f;
 	public int playerFoodPoints = 100;
@@ -30,14 +31,14 @@ public class GameManager : MonoBehaviour
   	DontDestroyOnLoad(gameObject);
 
   	enemies = new List<Enemy>();
-    boardManager = GetComponent<BoardManager>();
+		dungeonManager = GetComponent<DungeonManager>();
     initGame();
   }
 
   public static void triggerRoomChange()
   {
       enemies.Clear();
-      boardManager.changeRooms();
+      dungeonManager.setupNextRoom();
   }
 
   void initGame()
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
     levelText = GameObject.Find("LevelText").GetComponent<Text>();
     Invoke("hideLevelImage", levelStartDelay);
   	enemies.Clear();
-		boardManager.initializeDungeon();
+		dungeonManager.initializeDungeon();
   }
 
   private void hideLevelImage()
@@ -99,8 +100,8 @@ public class GameManager : MonoBehaviour
   	enemiesMoving = false;
   }
 
-	public static BoardManager getBoardManager()
+	public static DungeonManager getDungeonManager()
 	{
-		return boardManager;
+		return dungeonManager;
 	}
 }

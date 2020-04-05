@@ -25,7 +25,7 @@ public class CameraBehavior : MonoBehaviour
     float x = player.transform.position.x;
     float y = player.transform.position.y;
 
-    Room currentRoom = GameManager.boardManager.getDungeonManager().getCurrentRoom();
+    Room currentRoom = GameManager.getDungeonManager().getCurrentRoom();
     float boardHeight = currentRoom.getHeight();
     float boardWidth = currentRoom.getWidth();
 

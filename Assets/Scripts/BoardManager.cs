@@ -6,7 +6,6 @@ using Random = UnityEngine.Random;
 
 public class BoardManager : MonoBehaviour
 {
-	//reference to the transform of our Board object.
 	private Transform boardHolder;
 	public GameObject exit;
 	public GameObject[] floorTiles;
@@ -15,7 +14,6 @@ public class BoardManager : MonoBehaviour
 	public GameObject[] enemyTiles;
 	public GameObject[] outerWallTiles;
 	public static GameObject player;
-	private DungeonManager dungeonManager;
 
 
 	void initializeBoardFromRoom(Room room)
@@ -71,31 +69,26 @@ public class BoardManager : MonoBehaviour
 	}
 
 
-	public void initializeDungeon()
+	public void initFirstRoom(Room firstRoom)
 	{
-		dungeonManager = new DungeonManager(5);
-		Room currentRoom = dungeonManager.getCurrentRoom();
+		initializeBoardFromRoom(firstRoom);
 		player = GameObject.FindGameObjectWithTag("Player");
-		player.transform.position = currentRoom.getRandomEmptyPosition();
-		initializeBoardFromRoom(currentRoom);
+		player.transform.position = firstRoom.getRandomEmptyPosition();
 	}
 
-
-	public void changeRooms()
+	public void changeRooms(Room newRoom, Vector3 playerStartPosition)
 	{
 		foreach (Transform child in boardHolder) {
      		GameObject.Destroy(child.gameObject);
  		}
 
-		dungeonManager.setupNextRoom(player.transform.position);
-		player.transform.position = dungeonManager.getPlayerStartPosition();
-
-		initializeBoardFromRoom(dungeonManager.getCurrentRoom());
+		initializeBoardFromRoom(newRoom);
+		player.transform.position = playerStartPosition;
 	}
 
 
-	public DungeonManager getDungeonManager()
+	public Vector3 getPlayerPosition()
 	{
-		return dungeonManager;
+		return player.transform.position;
 	}
 }

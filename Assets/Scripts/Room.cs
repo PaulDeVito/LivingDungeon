@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 public class Room
 {
   public int MINIMUM_ROOM_SIZE = 5;
-  public int MAXIMUM_ROOM_SIZE = 20;
+  public int MAXIMUM_ROOM_SIZE = 10;
   public int width;
   public int height;
   public Vector3 mapCoordinates;
