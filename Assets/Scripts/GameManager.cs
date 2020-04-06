@@ -7,12 +7,11 @@ public class GameManager : MonoBehaviour
 {
 	public static GameManager instance;
 	public static DungeonManager dungeonManager;
+	public float turnDelay = 0.1f;
 
 
 	public float levelStartDelay = 2f;
 	public int playerFoodPoints = 100;
-	public float turnDelay = 0.05f;
-	[HideInInspector] public bool playersTurn = true;
 
   private static Text levelText;
   private static GameObject levelImage;
@@ -58,19 +57,34 @@ public class GameManager : MonoBehaviour
       doingSetup = false;
   }
 
-  public void gameOver()
+  public void triggerGameOver()
   {
-      levelText.text = "YOU DIED";
-      levelImage.SetActive(true);
-  	enabled = false;
+		Invoke("gameOver", 0.1f);
   }
 
+	private void gameOver()
+	{
+		levelText.text = "YOU DIED";
+    levelImage.SetActive(true);
+  	enabled = false;
+	}
 
-  // Update is called once per frame
+	public void triggerWinGame()
+	{
+		Debug.Log("Won the game");
+		Invoke("winGame", 0.1f);
+	}
+
+	private void winGame()
+	{
+		levelText.text = "SWEET WIIIIINNAMONNNN";
+    levelImage.SetActive(true);
+  	enabled = false;
+	}
+
   void Update()
   {
-		// boardManager.updateCamera();
-    if(playersTurn || enemiesMoving)
+		if(enemiesMoving)
     	return;
 
     StartCoroutine(moveEnemies());
@@ -93,10 +107,9 @@ public class GameManager : MonoBehaviour
   	for (int i = 0; i < enemies.Count; i++)
   	{
   		enemies[i].moveEnemy();
-  		yield return new WaitForSeconds(enemies[i].moveTime);
+  		yield return new WaitForSeconds(enemies[i].moveAnimationTime);
   	}
 
-  	playersTurn = true;
   	enemiesMoving = false;
   }
 

@@ -5,18 +5,18 @@ using UnityEngine;
 public abstract class MovingObject : MonoBehaviour
 {
 
-	public float moveTime = 0.1f;
+	public float moveAnimationTime = 0.1f;
 	public LayerMask blockingLayer;
 
 	private BoxCollider2D boxCollider;
 	private Rigidbody2D rb2D;
-	public float inverseMoveTime;
+	public float inverseAnimationTime;
 
     protected virtual void Start()
     {
         boxCollider = GetComponent<BoxCollider2D>();
         rb2D = GetComponent<Rigidbody2D>();
-        inverseMoveTime = 1f / moveTime;
+        inverseAnimationTime = 1f / moveAnimationTime;
     }
 
     protected bool move(int xDir, int yDir, out RaycastHit2D hit)
@@ -43,7 +43,7 @@ public abstract class MovingObject : MonoBehaviour
     	float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
     	while(sqrRemainingDistance > float.Epsilon)
     	{
-    		Vector3 newPosition = Vector3.MoveTowards(rb2D.position, end, inverseMoveTime*Time.deltaTime);
+    		Vector3 newPosition = Vector3.MoveTowards(rb2D.position, end, inverseAnimationTime*Time.deltaTime);
     		rb2D.MovePosition(newPosition);
     		sqrRemainingDistance = (transform.position - end).sqrMagnitude;
     		yield return null;

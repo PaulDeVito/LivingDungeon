@@ -33,6 +33,7 @@ public class Room
     OuterWall,
     InnerWall,
     Door,
+    Stairs,
     Food,
     Enemy
   }
@@ -73,14 +74,14 @@ public class Room
     }
   }
 
-  public void placeItems(int numItems)
+  public void placeItems(int numItems, Vector3 playerPosition)
   {
-    items = placeTiles(TileType.Food, numItems);
+    items = placeTiles(TileType.Food, numItems, playerPosition);
   }
 
-  public void placeEnemies(int numEnemies)
+  public void placeEnemies(int numEnemies, Vector3 playerPosition)
   {
-    enemies = placeTiles(TileType.Enemy, numEnemies);
+    enemies = placeTiles(TileType.Enemy, numEnemies, playerPosition);
   }
 
 
@@ -91,7 +92,7 @@ public class Room
   }
 
 
-  private List<Vector3> placeTiles(TileType type, int count)
+  private List<Vector3> placeTiles(TileType type, int count, Vector3 playerPosition)
   {
     List<Vector3> positions = new List<Vector3>();
 
@@ -100,6 +101,11 @@ public class Room
       if (emptyPositions.Count <= 0) break;
 
       Vector3 tilePosition = emptyPositions[Random.Range(0, emptyPositions.Count)];
+      if (tilePosition == playerPosition)
+      {
+        continue;
+      }
+      
       tileGrid[(int)tilePosition.y, (int)tilePosition.x] = type;
       positions.Add(tilePosition);
       emptyPositions.Remove(tilePosition);
@@ -136,6 +142,34 @@ public class Room
 
     tileGrid[positionY, positionX] = TileType.Door;
     doors.Add(new DoorTile(direction, positionY, positionX));
+  }
+
+  public void placeStairs(Direction direction)
+  {
+    int positionX = 0;
+    int positionY = 0;
+
+    switch(direction)
+    {
+      case Direction.North:
+      positionY = height-2;
+      positionX = Random.Range(2,width-2);
+      break;
+      case Direction.South:
+      positionY = 1;
+      positionX = Random.Range(2,width-2);
+      break;
+      case Direction.East:
+      positionY = Random.Range(2,height-2);
+      positionX = width - 2;
+      break;
+      case Direction.West:
+      positionY = Random.Range(2,height-2);
+      positionX = 1;
+      break;
+    }
+
+    tileGrid[positionY, positionX] = TileType.Stairs;
   }
 
   public void printTileGrid()

@@ -17,6 +17,7 @@ public class DungeonManager : MonoBehaviour
   public static BoardManager boardManager;
   public int numFloors = 5;
   public int currentFloor;
+  public bool stairsPlaced;
 
   public static int mapWidth = 30;
   public static int mapHeight = 30;
@@ -35,7 +36,6 @@ public class DungeonManager : MonoBehaviour
   public int minEnemiesOnFloor = 5;
   public static int numEnemiesPlaced = 0;
 
-
   private static Room[,] roomMap;
   private Room currentRoom;
   private Direction entranceDirection;
@@ -49,12 +49,24 @@ public class DungeonManager : MonoBehaviour
     entranceDirection = Direction.South;
     exitDirection = Direction.North;
     roomMap = new Room[mapWidth,mapHeight];
+    currentRoom = buildFirstRoom();
+    boardManager.initFirstRoom(currentRoom);
+  }
+
+  private Room buildFirstRoom()
+  {
+    numUnopenedDoors += 1;
+    numDoorsPlaced += 1;
     int mapX = Random.Range(0,mapWidth);
     int mapY = Random.Range(0,mapHeight);
-    Vector3 mapCoordinates = new Vector3(mapX, mapY, 0);
-    currentRoom = buildRoom(currentFloor, mapCoordinates);
-    roomMap[mapX, mapY] = currentRoom;
-    boardManager.initFirstRoom(currentRoom);
+    Room newRoom =  new Room(currentFloor, new Vector3(mapX, mapY, 0));
+    roomMap[mapX, mapY] = newRoom;
+
+    Array directions = Enum.GetValues(typeof(Direction));
+    newRoom.placeDoorTile((Direction)directions.GetValue(Random.Range(0,4)));
+    newRoom.placeItems(determineNumItems(newRoom), new Vector3(-1,-1,-1));
+
+    return newRoom;
   }
 
   public void setupNextRoom()
@@ -68,7 +80,13 @@ public class DungeonManager : MonoBehaviour
     Room roomEntered = roomMap[(int)newCoordinates.x,(int)newCoordinates.y];
     if (roomEntered == null)
     {
-      roomEntered = buildRoom(currentFloor, newCoordinates);
+      roomEntered = buildRoom(currentFloor, newCoordinates, entranceDirection);
+      if (shouldPlaceStairs(roomEntered))
+      {
+        roomEntered.placeStairs(exitDirection);
+        stairsPlaced = true;
+      }
+
       roomMap[(int)newCoordinates.x,(int)newCoordinates.y] = roomEntered;
     }
 
@@ -79,7 +97,7 @@ public class DungeonManager : MonoBehaviour
     currentRoom = roomEntered;
   }
 
-  private Room buildRoom(int floor, Vector3 coordinates)
+  private Room buildRoom(int floor, Vector3 coordinates, Direction entranceDirection)
   {
     List<Direction> knownConnections = new List<Direction>();
     List<Direction> availableConnections = new List<Direction>();
@@ -112,8 +130,10 @@ public class DungeonManager : MonoBehaviour
       newRoom.placeDoorTile(direction);
     }
 
-    newRoom.placeItems(determineNumItems(newRoom));
-    newRoom.placeEnemies(determineNumEnemies(newRoom));
+    Vector3 playerLocation = newRoom.getDoorPositionAtDirection(entranceDirection)
+                        + getDirectionOffsetVector(reverseDirection(entranceDirection));
+    newRoom.placeItems(determineNumItems(newRoom), playerLocation);
+    newRoom.placeEnemies(determineNumEnemies(newRoom), playerLocation);
 
     return newRoom;
   }
@@ -176,9 +196,9 @@ public class DungeonManager : MonoBehaviour
   {
     int score = generateEnemyScore(room);
     int[] values = new int[] {3,2,1};
-    int[] probabilities = new int[] {95,85,65};
+    int[] probabilities = new int[] {97,92,68};
     int numEnemies = resolveGenerationProbability(values, probabilities, score);
-    if (numUnopenedDoors <= 1 && numDoorsPlaced > 1)
+    if (numUnopenedDoors <= 1 && numOpenedDoors >= minDoorsOnFloor / 2)
     {
       numEnemies = Math.Max(minEnemiesOnFloor - numEnemiesPlaced, 0);
     }
@@ -187,6 +207,12 @@ public class DungeonManager : MonoBehaviour
     {
       numEnemies = 0;
     }
+
+    if (room.getHeight() <= 6 || room.getWidth() <= 6)
+    {
+      numEnemies = 0;
+    }
+
 
     return numEnemies;
   }
@@ -198,6 +224,41 @@ public class DungeonManager : MonoBehaviour
     return Random.Range(minScore, maxScore);
   }
 
+  private bool shouldPlaceStairs(Room room)
+  {
+    if (stairsPlaced)
+    {
+      return false;
+    }
+    if (numUnopenedDoors == 0)
+    {
+      return true;
+    }
+
+    if (numDoorsPlaced == maxDoorsOnFloor)
+    {
+      int score = Random.Range(0,100);
+      if (score > 70)
+      {
+        return true;
+      }
+    }
+
+    if (numOpenedDoors >= minDoorsOnFloor)
+    {
+      if (room.getNumDoors() == 1)
+      {
+        int score = Random.Range(0,100);
+        if (score > 60)
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
 
   private int resolveGenerationProbability(int[] resultValues, int[] resultProbabilities, int generatedScore)
   {
@@ -206,8 +267,6 @@ public class DungeonManager : MonoBehaviour
     {
       if (generatedScore > resultProbabilities[i])
       {
-        Debug.Log("Generated score: " + generatedScore);
-        Debug.Log("result probability: " + resultProbabilities[i]);
         return resultValues[i];
       }
     }

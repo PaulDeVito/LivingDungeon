@@ -12,6 +12,10 @@ public class Player : MovingObject
     public int pointsPerFood = 10;
     public int pointsPerSoda = 20;
     public float restartLevelDelay = 0.5f;
+    public bool moving;
+    public float timeToMove = 0.2f;
+    public Vector3 destinationTile;
+
     public Text foodText;
 
     public AudioClip moveSound1;
@@ -42,6 +46,7 @@ public class Player : MovingObject
         animator = GetComponent<Animator>();
         food = GameManager.instance.playerFoodPoints;
         foodText = GameObject.Find("FoodText").GetComponent<Text>();
+        moving = false;
         base.Start();
     }
 
@@ -49,7 +54,7 @@ public class Player : MovingObject
     void Update()
     {
         // GameManager.instance.updateCamera(transform.position);
-        if (!GameManager.instance.playersTurn) return;
+        if (moving) return;
 
         int horizontal = 0;
         int vertical = 0;
@@ -77,7 +82,7 @@ public class Player : MovingObject
     {
     	if(other.tag == "Exit")
     	{
-    		Invoke("changeRooms", moveTime + .01f);
+    		Invoke("changeRooms", moveAnimationTime + .01f);
     	}
 
     	else if(other.tag == "Food")
@@ -96,7 +101,12 @@ public class Player : MovingObject
     		other.gameObject.SetActive(false);
             SoundManager.instance.randomizeSfx(drinkSound1, drinkSound2);
             GameManager.getDungeonManager().getCurrentRoom().removeFoodAtPosition(other.transform.position);
+    	}
 
+      else if(other.tag == "Stairs")
+    	{
+        SoundManager.instance.randomizeSfx(drinkSound1, drinkSound2);
+        GameManager.instance.triggerWinGame();
     	}
     }
 
@@ -105,14 +115,25 @@ public class Player : MovingObject
     	bool didMove = base.attemptMove<T>(xDir, yDir);
     	RaycastHit2D hit;
 
-        if(didMove)
-        {
-            SoundManager.instance.randomizeSfx(moveSound1, moveSound2);
-        }
+      if(didMove)
+      {
+        SoundManager.instance.randomizeSfx(moveSound1, moveSound2);
+        moving = true;
+        int newX = (int)gameObject.transform.position.x + xDir;
+        int newY = (int)gameObject.transform.position.y + yDir;
+        destinationTile = new Vector3(newX, newY, 0);
+        Invoke("finishMoving", timeToMove);
+
+        // yield return new WaitForSeconds(GameManager.instance.turnDelay);
+      }
 
     	checkIfGameOver();
-    	GameManager.instance.playersTurn = false;
-        return didMove;
+      return didMove;
+    }
+
+    private void finishMoving()
+    {
+      moving = false;
     }
 
     protected override void onCantMove<T>(T component)
@@ -138,7 +159,7 @@ public class Player : MovingObject
         {
           SoundManager.instance.playSingle(gameOverSound);
     		  SoundManager.instance.musicSource.Stop();
-          GameManager.instance.gameOver();
+          GameManager.instance.triggerGameOver();
         }
     }
 }

@@ -7,7 +7,8 @@ using Random = UnityEngine.Random;
 public class BoardManager : MonoBehaviour
 {
 	private Transform boardHolder;
-	public GameObject exit;
+	public GameObject door;
+	public GameObject stairs;
 	public GameObject[] floorTiles;
 	public GameObject[] wallTiles;
 	public GameObject[] foodTiles;
@@ -31,8 +32,12 @@ public class BoardManager : MonoBehaviour
 					case Room.TileType.Empty:
 						boardTile = floorTiles[Random.Range(0,floorTiles.Length)];
 						break;
+					case Room.TileType.Stairs:
+						layFloorTile(x, y);
+						boardTile = stairs;
+						break;
 					case Room.TileType.Door:
-						boardTile = exit;
+						boardTile = door;
 						break;
 					case Room.TileType.OuterWall:
 						boardTile = outerWallTiles [Random.Range(0, outerWallTiles.Length)];
