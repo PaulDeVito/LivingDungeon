@@ -21,11 +21,20 @@ public class DungeonManager : MonoBehaviour
   public static int mapWidth = 30;
   public static int mapHeight = 30;
 
-  public int numDoorsRemaining = 15;
+  public int maxDoorsOnFloor = 20;
+  public int minDoorsOnFloor = 15;
+  public static int numDoorsPlaced = 0;
 	public static int numOpenedDoors = 0;
 	public static int numUnopenedDoors = 0;
-	public static int numFoodRemaining = 10;
-	public static int numEnemiesRemaining = 0;
+
+  public int maxItemsOnFloor = 15;
+  public int minItemsOnFloor = 5;
+  public static int numItemsPlaced = 0;
+
+  public int maxEnemiesOnFloor = 10;
+  public int minEnemiesOnFloor = 5;
+  public static int numEnemiesPlaced = 0;
+
 
   private static Room[,] roomMap;
   private Room currentRoom;
@@ -78,18 +87,17 @@ public class DungeonManager : MonoBehaviour
 
     int minDoors = 0;
     int maxDoors = availableConnections.Count;
-    if (numUnopenedDoors <= 2) minDoors = 1;
-    if (maxDoors > numDoorsRemaining) maxDoors = numDoorsRemaining;
+    if (numUnopenedDoors <= 2 && numDoorsPlaced < minDoorsOnFloor) minDoors = 1;
+    int remainingDoorsAllowed = maxDoorsOnFloor - numDoorsPlaced;
+    if (maxDoors > remainingDoorsAllowed) maxDoors = remainingDoorsAllowed;
     if (minDoors > maxDoors) minDoors = maxDoors;
     int numDoorsToPlace = Random.Range(minDoors, maxDoors + 1);
 
     numUnopenedDoors += numDoorsToPlace - knownConnections.Count;
-    numDoorsRemaining -= numDoorsToPlace;
+    numDoorsPlaced += numDoorsToPlace;
     numOpenedDoors += knownConnections.Count;
 
-
-    Room newRoom =  new Room(numFloors - 1, coordinates, numFoodRemaining, numEnemiesRemaining);
-
+    Room newRoom =  new Room(numFloors - 1, coordinates);
     while (numDoorsToPlace > 0)
     {
       int i = Random.Range(0,availableConnections.Count);
@@ -103,6 +111,9 @@ public class DungeonManager : MonoBehaviour
     {
       newRoom.placeDoorTile(direction);
     }
+
+    newRoom.placeItems(determineNumItems(newRoom));
+    newRoom.placeEnemies(determineNumEnemies(newRoom));
 
     return newRoom;
   }
@@ -133,6 +144,75 @@ public class DungeonManager : MonoBehaviour
         connectedDirs.Add(direction);
       }
     }
+  }
+
+  private int determineNumItems(Room room)
+  {
+    int score = generateItemScore(room);
+    int[] values = new int[] {5, 4, 3, 2, 1};
+    int[] probabilities = new int[] {97, 94, 90, 85, 65};
+    int numItems = resolveGenerationProbability(values, probabilities, score);
+    if (numUnopenedDoors == 0)
+    {
+      numItems = Math.Max(minItemsOnFloor - numItemsPlaced, 0);
+    }
+
+    if (numItemsPlaced >= maxItemsOnFloor)
+    {
+      numItems = 0;
+    }
+
+    return numItems;
+  }
+
+  private int generateItemScore(Room room)
+  {
+    int minScore = 15 * (5 - room.getNumDoors());
+    int maxScore = 100 - (10 * (room.getNumDoors() - 1));
+    return Random.Range(minScore, maxScore);
+  }
+
+  private int determineNumEnemies(Room room)
+  {
+    int score = generateEnemyScore(room);
+    int[] values = new int[] {3,2,1};
+    int[] probabilities = new int[] {95,85,65};
+    int numEnemies = resolveGenerationProbability(values, probabilities, score);
+    if (numUnopenedDoors <= 1 && numDoorsPlaced > 1)
+    {
+      numEnemies = Math.Max(minEnemiesOnFloor - numEnemiesPlaced, 0);
+    }
+
+    if (numEnemiesPlaced >= maxEnemiesOnFloor)
+    {
+      numEnemies = 0;
+    }
+
+    return numEnemies;
+  }
+
+  private int generateEnemyScore(Room room)
+  {
+    int minScore = 20 * (room.getNumDoors() - 1);
+    int maxScore = 60 + (10 * (room.getNumDoors()));
+    return Random.Range(minScore, maxScore);
+  }
+
+
+  private int resolveGenerationProbability(int[] resultValues, int[] resultProbabilities, int generatedScore)
+  {
+    Debug.Assert(resultValues.Length == resultProbabilities.Length);
+    for (int i = 0; i < resultValues.Length; i++)
+    {
+      if (generatedScore > resultProbabilities[i])
+      {
+        Debug.Log("Generated score: " + generatedScore);
+        Debug.Log("result probability: " + resultProbabilities[i]);
+        return resultValues[i];
+      }
+    }
+
+    return 0;
   }
 
   static private Direction reverseDirection(Direction inDirection)

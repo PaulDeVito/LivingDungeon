@@ -39,17 +39,15 @@ public class Room
 
   private TileType[,] tileGrid;
   private List<DoorTile> doors;
-  private List<Vector3> food;
+  private List<Vector3> items;
   private List<Vector3> enemies;
   private List<Vector3> emptyPositions;
 
-  public Room (int floor, Vector3 coordinates, int numFoodRemaining, int numEnemiesRemaining)
+  public Room (int floor, Vector3 coordinates)
   {
     this.mapCoordinates = coordinates;
     this.doors = new List<DoorTile>();
     initializeTileGrid();
-    initializeFood(numFoodRemaining);
-    initializeEnemies(numEnemiesRemaining);
   }
 
 
@@ -75,62 +73,23 @@ public class Room
     }
   }
 
-  private void initializeFood(int numFoodRemaining)
+  public void placeItems(int numItems)
   {
-    int numFood = 0;
-    int foodProb = Random.Range(0, 100);
-    if (foodProb > 98)
-    {
-      numFood = 6;
-    } else if (foodProb > 97)
-    {
-      numFood = 5;
-    } else if (foodProb > 96)
-    {
-      numFood = 4;
-    } else if (foodProb > 94)
-    {
-      numFood = 3;
-    } else if (foodProb > 90)
-    {
-      numFood = 2;
-    } else if (foodProb > 70)
-    {
-      numFood = 1;
-    }
-
-    if (numFood > numFoodRemaining) numFood = numFoodRemaining;
-    numFoodRemaining -= numFood;
-
-    food = placeTiles(TileType.Food, numFood);
+    items = placeTiles(TileType.Food, numItems);
   }
 
-  private void initializeEnemies(int numEnemiesRemaining)
+  public void placeEnemies(int numEnemies)
   {
-    int numEnemies = 0;
-    int enemyProb = Random.Range(0,100);
-    if (enemyProb > 98)
-    {
-      numEnemies = 3;
-    } else if (enemyProb > 95)
-    {
-      numEnemies = 2;
-    } else if (enemyProb > 90)
-    {
-      numEnemies = 1;
-    }
-
-    if (numEnemies > numEnemiesRemaining) numEnemies = numEnemiesRemaining;
-    numEnemiesRemaining -= numEnemies;
-
     enemies = placeTiles(TileType.Enemy, numEnemies);
   }
+
 
   public Vector3 getRandomEmptyPosition()
   {
     if (emptyPositions.Count <= 0) return new Vector3(0,0,0);
     return emptyPositions[Random.Range(0, emptyPositions.Count)];
   }
+
 
   private List<Vector3> placeTiles(TileType type, int count)
   {
@@ -240,12 +199,12 @@ public class Room
 
   public void removeFoodAtPosition(Vector3 position)
   {
-    foreach (Vector3 foodPos in food)
+    foreach (Vector3 itemPos in items)
     {
-      if (position==foodPos)
+      if (position==itemPos)
       {
-        tileGrid[(int)foodPos.y,(int)foodPos.x] = TileType.Empty;
-        food.Remove(foodPos);
+        tileGrid[(int)itemPos.y,(int)itemPos.x] = TileType.Empty;
+        items.Remove(itemPos);
         return;
       }
     }
@@ -259,5 +218,10 @@ public class Room
   public int getWidth()
   {
     return width;
+  }
+
+  public int getNumDoors()
+  {
+    return doors.Count;
   }
 }
