@@ -101,8 +101,14 @@ public class Enemy : MovingObject
 
 		public void searchForPlayer()
 		{
-			RaycastHit2D hit = Physics2D.Linecast(transform.position, target.position, blockingLayer);
-			if (hit == target)
+			if (transform.position.z != target.position.z)
+			{
+				attacking = false;
+				return;
+			}
+			RaycastHit hit;
+			Physics.Linecast(transform.position, target.position, out hit, blockingLayer);
+			if (hit.transform == target)
 			{
 				float dist = Vector3.Distance(target.position, transform.position);
 				attacking = (dist < range);

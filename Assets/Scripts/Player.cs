@@ -78,7 +78,7 @@ public class Player : MovingObject
       GameManager.triggerRoomChange();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter(Collider other)
     {
     	if(other.tag == "Exit")
     	{
@@ -113,7 +113,7 @@ public class Player : MovingObject
     protected override bool attemptMove<T>(int xDir, int yDir)
     {
     	bool didMove = base.attemptMove<T>(xDir, yDir);
-    	RaycastHit2D hit;
+    	RaycastHit hit;
 
       if(didMove)
       {
