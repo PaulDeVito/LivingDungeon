@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
   private static Text levelText;
   private static GameObject levelImage;
 	private static List<Enemy> enemies;
+	private static List<Enemy> activeEnemies;
+	private static List<Enemy> inactiveEnemies;
 	private bool enemiesMoving;
   private bool doingSetup;
 
@@ -30,15 +32,36 @@ public class GameManager : MonoBehaviour
   	DontDestroyOnLoad(gameObject);
 
   	enemies = new List<Enemy>();
+  	activeEnemies = new List<Enemy>();
+  	inactiveEnemies = new List<Enemy>();
 		dungeonManager = GetComponent<DungeonManager>();
     initGame();
   }
 
   public static void triggerRoomChange()
   {
-      enemies.Clear();
       dungeonManager.setupNextRoom();
+			categorizeEnemies();
   }
+
+	private static void categorizeEnemies()
+	{
+		Debug.Log("Total enemies: " + enemies.Count);
+		activeEnemies.Clear();
+		inactiveEnemies.Clear();
+		foreach(Enemy enemy in enemies)
+		{
+
+			if (enemy.gameObject.transform.parent.gameObject.activeSelf)
+			{
+				activeEnemies.Add(enemy);
+			} else {
+				inactiveEnemies.Add(enemy);
+			}
+		}
+		Debug.Log("Total active enemies: " + activeEnemies.Count);
+		Debug.Log("Total inactive enemies: " + inactiveEnemies.Count);
+	}
 
   void initGame()
   {
@@ -48,6 +71,7 @@ public class GameManager : MonoBehaviour
     levelText = GameObject.Find("LevelText").GetComponent<Text>();
     Invoke("hideLevelImage", levelStartDelay);
   	enemies.Clear();
+		Debug.Log("calling initialize dungeon manager");
 		dungeonManager.initializeDungeon();
   }
 
@@ -84,30 +108,51 @@ public class GameManager : MonoBehaviour
 
   void Update()
   {
+		moveEnemies();
+  }
+
+	void moveEnemies()
+	{
 		if(enemiesMoving)
     	return;
 
-    StartCoroutine(moveEnemies());
-  }
+		// moveInactiveEnemies();
+		StartCoroutine(moveActiveEnemies());
+	}
+
+
 
   public void addEnemyToList(Enemy script)
   {
   	enemies.Add(script);
   }
 
-  IEnumerator moveEnemies()
+	private void moveInactiveEnemies()
+	{
+		foreach(Enemy enemy in inactiveEnemies)
+		{
+			enemy.backgroundMove();
+		}
+	}
+
+  IEnumerator moveActiveEnemies()
   {
   	enemiesMoving = true;
   	yield return new WaitForSeconds(turnDelay);
-  	if (enemies.Count == 0)
-  	{
-  		yield return new WaitForSeconds(turnDelay);
-  	}
+  	// if (activeEnemies.Count == 0)
+  	// {
+  	// 	yield return new WaitForSeconds(turnDelay);
+  	// }
 
   	for (int i = 0; i < enemies.Count; i++)
   	{
-  		enemies[i].moveEnemy();
-  		yield return new WaitForSeconds(enemies[i].moveAnimationTime);
+			if (enemies[i].gameObject.transform.parent.gameObject.activeSelf)
+			{
+				enemies[i].activeMove();
+				yield return new WaitForSeconds(enemies[i].moveAnimationTime);
+			} else {
+				enemies[i].backgroundMove();
+			}
   	}
 
   	enemiesMoving = false;

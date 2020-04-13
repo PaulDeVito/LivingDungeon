@@ -6,7 +6,6 @@ using Random = UnityEngine.Random;
 
 public class BoardManager : MonoBehaviour
 {
-	private Transform boardHolder;
 	public GameObject door;
 	public GameObject stairs;
 	public GameObject[] floorTiles;
@@ -16,10 +15,21 @@ public class BoardManager : MonoBehaviour
 	public GameObject[] outerWallTiles;
 	public static GameObject player;
 
+	private static Transform[,] boardMap;
+	private static List<Transform> allBoards;
 
-	void initializeBoardFromRoom(Room room)
+
+	public void initialize(int mapWidth, int mapHeight)
 	{
-		boardHolder = new GameObject().transform;
+		player = GameObject.FindGameObjectWithTag("Player");
+		boardMap = new Transform[mapWidth, mapHeight];
+		allBoards = new List<Transform>();
+	}
+
+	public void initializeBoardFromRoom(Room room)
+	{
+		Transform currentBoard = new GameObject().transform;
+		boardMap[room.getXCoordinate(), room.getYCoordinate()] = currentBoard;
 		Room.TileType[,] grid = room.getTileGrid();
 		for (int x = 0; x < room.width; x++)
 		{
@@ -33,7 +43,7 @@ public class BoardManager : MonoBehaviour
 						boardTile = floorTiles[Random.Range(0,floorTiles.Length)];
 						break;
 					case Room.TileType.Stairs:
-						layFloorTile(x, y);
+						layFloorTile(currentBoard, x, y);
 						boardTile = stairs;
 						break;
 					case Room.TileType.Door:
@@ -46,11 +56,11 @@ public class BoardManager : MonoBehaviour
 						boardTile = wallTiles [Random.Range(0, wallTiles.Length)];
 						break;
 					case Room.TileType.Food:
-						layFloorTile(x, y);
+						layFloorTile(currentBoard, x, y);
 						boardTile = foodTiles [Random.Range(0, foodTiles.Length)];
 						break;
 					case Room.TileType.Enemy:
-						layFloorTile(x, y);
+						layFloorTile(currentBoard, x, y);
 						boardTile = enemyTiles [Random.Range(0, enemyTiles.Length)];
 						break;
 					default:
@@ -60,37 +70,48 @@ public class BoardManager : MonoBehaviour
 
 				GameObject boardTileInstance =
 					Instantiate (boardTile, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
-				boardTileInstance.transform.SetParent (boardHolder);
+				boardTileInstance.transform.SetParent (currentBoard);
 			}
+		}
+
+		incrementAllBoardDepths();
+		allBoards.Add(currentBoard);
+	}
+
+	private void incrementAllBoardDepths()
+	{
+		foreach (Transform board in allBoards)
+		{
+			float newZ = board.position.z + 1;
+			board.position = new Vector3(0, 0, newZ);
 		}
 	}
 
-	void layFloorTile(int x, int y)
+	void layFloorTile(Transform board, int x, int y)
 	{
 		GameObject boardTile = floorTiles[Random.Range(0,floorTiles.Length)];
 		GameObject boardTileInstance =
 			Instantiate (boardTile, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
-		boardTileInstance.transform.SetParent (boardHolder);
+		boardTileInstance.transform.SetParent (board);
 	}
 
-
-	public void initFirstRoom(Room firstRoom)
+	public Transform getBoardFromRoom(Room room)
 	{
-		initializeBoardFromRoom(firstRoom);
-		player = GameObject.FindGameObjectWithTag("Player");
-		player.transform.position = firstRoom.getRandomEmptyPosition();
+		return boardMap[room.getXCoordinate(), room.getYCoordinate()];
 	}
 
-	public void changeRooms(Room newRoom, Vector3 playerStartPosition)
+	public void changeRooms(Room newRoom, Room oldRoom)
 	{
-		foreach (Transform child in boardHolder) {
-     		GameObject.Destroy(child.gameObject);
- 		}
-
-		initializeBoardFromRoom(newRoom);
-		player.transform.position = playerStartPosition;
+		incrementAllBoardDepths();
+		getBoardFromRoom(newRoom).position = new Vector3(0, 0, 0);
+		// getBoardFromRoom(oldRoom).gameObject.SetActive(false);
+		// getBoardFromRoom(newRoom).gameObject.SetActive(true);
 	}
 
+	public void setPlayerPosition(Vector3 position)
+	{
+		player.transform.position = position;
+	}
 
 	public Vector3 getPlayerPosition()
 	{

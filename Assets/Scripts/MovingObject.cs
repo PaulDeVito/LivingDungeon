@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
+
 
 public abstract class MovingObject : MonoBehaviour
 {
@@ -19,10 +21,44 @@ public abstract class MovingObject : MonoBehaviour
         inverseAnimationTime = 1f / moveAnimationTime;
     }
 
+		protected List<Vector2> getAllDirections()
+		{
+			List<Vector2> directions = new List<Vector2>();
+			directions.Add(new Vector2(1, 0));
+			directions.Add(new Vector2(-1, 0));
+			directions.Add(new Vector2(0, 1));
+			directions.Add(new Vector2(0, -1));
+
+			return directions;
+		}
+
+		protected List<Vector2> getAvailableDirections()
+		{
+			List<Vector2> availableDirections = new List<Vector2>();
+			foreach(Vector2 direction in getAllDirections())
+			{
+				RaycastHit2D hit = checkMove(direction);
+				if (hit.transform == null)
+				{
+					availableDirections.Add(direction);
+				} else {
+					Debug.Log(hit.transform.gameObject + "(" + hit.transform.position + ") at direction " + direction);
+				}
+			}
+
+			return availableDirections;
+		}
+
+		protected RaycastHit2D checkMove(Vector2 direction)
+		{
+			Vector3 start = transform.position;
+			return Physics2D.Linecast(start, start + (Vector3)direction);
+		}
+
     protected bool move(int xDir, int yDir, out RaycastHit2D hit)
     {
-    	Vector2 start = transform.position;
-    	Vector2 end = start + new Vector2(xDir, yDir);
+    	Vector3 start = transform.position;
+    	Vector3 end = start + new Vector3(xDir, yDir, 0);
 
     	boxCollider.enabled = false;
     	hit = Physics2D.Linecast(start, end, blockingLayer);

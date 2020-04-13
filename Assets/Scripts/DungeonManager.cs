@@ -44,13 +44,13 @@ public class DungeonManager : MonoBehaviour
 
   public void initializeDungeon()
   {
-    boardManager = GetComponent<BoardManager>();
     currentFloor = numFloors - 1;
-    entranceDirection = Direction.South;
     exitDirection = Direction.North;
+    entranceDirection = Direction.South;
     roomMap = new Room[mapWidth,mapHeight];
+    boardManager = GetComponent<BoardManager>();
+    boardManager.initialize(mapWidth, mapHeight);
     currentRoom = buildFirstRoom();
-    boardManager.initFirstRoom(currentRoom);
   }
 
   private Room buildFirstRoom()
@@ -65,6 +65,9 @@ public class DungeonManager : MonoBehaviour
     Array directions = Enum.GetValues(typeof(Direction));
     newRoom.placeDoorTile((Direction)directions.GetValue(Random.Range(0,4)));
     newRoom.placeItems(determineNumItems(newRoom), new Vector3(-1,-1,-1));
+
+    boardManager.initializeBoardFromRoom(newRoom);
+    boardManager.setPlayerPosition(newRoom.getRandomEmptyPosition());
 
     return newRoom;
   }
@@ -88,11 +91,13 @@ public class DungeonManager : MonoBehaviour
       }
 
       roomMap[(int)newCoordinates.x,(int)newCoordinates.y] = roomEntered;
+      boardManager.initializeBoardFromRoom(roomEntered);
     }
 
+    boardManager.changeRooms(roomEntered, currentRoom);
     Vector3 playerStartPosition = roomEntered.getDoorPositionAtDirection(entranceDirection)
                                             + getDirectionOffsetVector(exitDirection);
-    boardManager.changeRooms(roomEntered, playerStartPosition);
+    boardManager.setPlayerPosition(playerStartPosition);
 
     currentRoom = roomEntered;
   }
@@ -196,7 +201,7 @@ public class DungeonManager : MonoBehaviour
   {
     int score = generateEnemyScore(room);
     int[] values = new int[] {3,2,1};
-    int[] probabilities = new int[] {97,92,68};
+    int[] probabilities = new int[] {97,92,40};
     int numEnemies = resolveGenerationProbability(values, probabilities, score);
     if (numUnopenedDoors <= 1 && numOpenedDoors >= minDoorsOnFloor / 2)
     {

@@ -41,7 +41,7 @@ public class Enemy : MovingObject
       return true;
     }
 
-    public void moveEnemy()
+    public void activeMove()
     {
 			searchForPlayer();
 			int yDir = 0;
@@ -114,6 +114,15 @@ public class Enemy : MovingObject
     	Player hitPlayer = component as Player;
     	hitPlayer.takeDamage(playerDamage);
     	animator.SetTrigger("enemyAttack");
-        SoundManager.instance.randomizeSfx(attackSound1, attackSound2);
+      SoundManager.instance.randomizeSfx(attackSound1, attackSound2);
     }
+
+		public void backgroundMove()
+		{
+			List<Vector2> directions = getAvailableDirections();
+			Debug.Log("Num available directions: " + directions.Count);
+			Vector2 moveDirection = directions[Random.Range(0, directions.Count)];
+			Vector3 newPosition = gameObject.transform.position + (Vector3)moveDirection;
+			gameObject.transform.position = newPosition;
+		}
 }

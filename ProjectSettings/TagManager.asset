@@ -19,7 +19,7 @@ TagManager:
   - 
   - 
   - BlockingLayer
-  - 
+  - DebuggingUI
   - 
   - 
   - 
@@ -54,4 +54,10 @@ TagManager:
     locked: 0
   - name: Units
     uniqueID: 3393972251
+    locked: 0
+  - name: UI
+    uniqueID: 2677829911
+    locked: 0
+  - name: DebugUI
+    uniqueID: 2584239203
     locked: 0

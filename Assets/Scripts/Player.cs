@@ -124,7 +124,7 @@ public class Player : MovingObject
         destinationTile = new Vector3(newX, newY, 0);
         Invoke("finishMoving", timeToMove);
 
-        // yield return new WaitForSeconds(GameManager.instance.turnDelay);
+        // yield return new WaitForSeconds(GameManager.instance.setPlayeray);
       }
 
     	checkIfGameOver();

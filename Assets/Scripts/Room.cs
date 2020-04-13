@@ -105,7 +105,7 @@ public class Room
       {
         continue;
       }
-      
+
       tileGrid[(int)tilePosition.y, (int)tilePosition.x] = type;
       positions.Add(tilePosition);
       emptyPositions.Remove(tilePosition);
@@ -257,5 +257,15 @@ public class Room
   public int getNumDoors()
   {
     return doors.Count;
+  }
+
+  public int getXCoordinate()
+  {
+    return (int)mapCoordinates.x;
+  }
+
+  public int getYCoordinate()
+  {
+    return (int)mapCoordinates.y;
   }
 }
