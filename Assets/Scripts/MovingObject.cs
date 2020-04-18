@@ -11,13 +11,13 @@ public abstract class MovingObject : MonoBehaviour
 	public LayerMask blockingLayer;
 
 	private BoxCollider boxCollider;
-	private Rigidbody rb2D;
+	private Rigidbody rigidbody;
 	public float inverseAnimationTime;
 
     protected virtual void Start()
     {
         boxCollider = GetComponent<BoxCollider>();
-        rb2D = GetComponent<Rigidbody>();
+        rigidbody = GetComponent<Rigidbody>();
         inverseAnimationTime = 1f / moveAnimationTime;
     }
 
@@ -78,11 +78,16 @@ public abstract class MovingObject : MonoBehaviour
 
     protected IEnumerator smoothMovement(Vector3 end)
     {
+			float originalZ = transform.position.z;
     	float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
     	while(sqrRemainingDistance > float.Epsilon)
     	{
-    		Vector3 newPosition = Vector3.MoveTowards(rb2D.position, end, inverseAnimationTime*Time.deltaTime);
-    		rb2D.MovePosition(newPosition);
+				if (transform.position.z != originalZ)
+				{
+					end = new Vector3(end.x, end.y, transform.parent.position.z);
+				}
+    		Vector3 newPosition = Vector3.MoveTowards(rigidbody.position, end, inverseAnimationTime*Time.deltaTime);
+    		rigidbody.MovePosition(newPosition);
     		sqrRemainingDistance = (transform.position - end).sqrMagnitude;
     		yield return null;
     	}

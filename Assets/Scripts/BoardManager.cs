@@ -17,6 +17,7 @@ public class BoardManager : MonoBehaviour
 
 	private static Transform[,] boardMap;
 	private static List<Transform> allBoards;
+	private static int numBoards;
 
 
 	public void initialize(int mapWidth, int mapHeight)
@@ -28,7 +29,10 @@ public class BoardManager : MonoBehaviour
 
 	public void initializeBoardFromRoom(Room room)
 	{
-		Transform currentBoard = new GameObject().transform;
+		numBoards++;
+		GameObject roomObject = new GameObject();
+		roomObject.name = "Room" + numBoards;
+		Transform currentBoard = roomObject.transform;
 		boardMap[room.getXCoordinate(), room.getYCoordinate()] = currentBoard;
 		Room.TileType[,] grid = room.getTileGrid();
 		for (int x = 0; x < room.width; x++)
@@ -104,8 +108,6 @@ public class BoardManager : MonoBehaviour
 	{
 		incrementAllBoardDepths();
 		getBoardFromRoom(newRoom).position = new Vector3(0, 0, 0);
-		// getBoardFromRoom(oldRoom).gameObject.SetActive(false);
-		// getBoardFromRoom(newRoom).gameObject.SetActive(true);
 	}
 
 	public void setPlayerPosition(Vector3 position)

@@ -6,26 +6,47 @@ public class Enemy : MovingObject
 {
 	public int playerDamage;
 	public int range;
+	public float wanderSpeed;
+	public float chaseSpeed;
+	public static float speedMultiplier;
 
 	private Animator animator;
 	private Transform target;
 	private Player player;
 	private bool skipMove;
 	private bool attacking;
+	private bool moving;
 
     public AudioClip attackSound1;
     public AudioClip attackSound2;
 
     void Start()
     {
-      GameManager.instance.addEnemyToList(this);
-      animator = GetComponent<Animator>();
-			player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-      target = GameObject.FindGameObjectWithTag("Player").transform;
-
-			attacking = false;
+      	GameManager.instance.addEnemyToList(this);
+      	animator = GetComponent<Animator>();
+	  	player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+      	target = GameObject.FindGameObjectWithTag("Player").transform;
+		speedMultiplier = wanderSpeed;
+		moving = false;
+		attacking = false;
     	base.Start();
     }
+
+	void Update()
+	{
+		if (!moving) {
+			StartCoroutine(startMove());
+		}
+	}
+	
+	IEnumerator startMove()
+	{
+		moving = true;
+		Move();
+		yield return new WaitForSeconds(GameManager.baseEnemySpeed * speedMultiplier);
+		// yield return new WaitForSeconds(moveAnimationTime);
+		moving = false;
+	}
 
     protected override bool attemptMove<T>(int xDir, int yDir)
     {
@@ -41,13 +62,14 @@ public class Enemy : MovingObject
       return true;
     }
 
-    public void activeMove()
+    public void Move()
     {
 			searchForPlayer();
 			int yDir = 0;
 			int xDir = 0;
 			if (attacking)
 			{
+				speedMultiplier = chaseSpeed;
 				Vector3 offset = target.position - transform.position;
 				float xMagnitude = Mathf.Abs(offset.x);
 				float yMagnitude = Mathf.Abs(offset.y);
@@ -72,6 +94,7 @@ public class Enemy : MovingObject
 					}
 				}
 			} else {
+				speedMultiplier = wanderSpeed;
 				int randomMotion = Random.Range(0,8);
 				switch (randomMotion)
 				{
@@ -122,13 +145,4 @@ public class Enemy : MovingObject
     	animator.SetTrigger("enemyAttack");
       SoundManager.instance.randomizeSfx(attackSound1, attackSound2);
     }
-
-		public void backgroundMove()
-		{
-			List<Vector2> directions = getAvailableDirections();
-			Debug.Log("Num available directions: " + directions.Count);
-			Vector2 moveDirection = directions[Random.Range(0, directions.Count)];
-			Vector3 newPosition = gameObject.transform.position + (Vector3)moveDirection;
-			gameObject.transform.position = newPosition;
-		}
 }

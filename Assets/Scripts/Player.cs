@@ -13,7 +13,9 @@ public class Player : MovingObject
     public int pointsPerSoda = 20;
     public float restartLevelDelay = 0.5f;
     public bool moving;
-    public float timeToMove = 0.2f;
+    public float speed = 0.2f;
+    public bool isInvincible = false;
+
     public Vector3 destinationTile;
 
     public Text foodText;
@@ -50,27 +52,35 @@ public class Player : MovingObject
         base.Start();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // GameManager.instance.updateCamera(transform.position);
-        if (moving) return;
+      UpdateMovement();
 
-        int horizontal = 0;
-        int vertical = 0;
+      if (Input.GetKeyDown(KeyCode.I) && Input.GetKey(KeyCode.RightShift))
+      {
+        isInvincible = !isInvincible;
+      }
+    }
 
-        horizontal = (int)(Input.GetAxisRaw("Horizontal"));
-        vertical = (int)(Input.GetAxisRaw("Vertical"));
+    void UpdateMovement()
+    {
+      if (moving) return;
 
-        if(horizontal != 0)
-        {
-        	vertical = 0;
-        }
+      int horizontal = 0;
+      int vertical = 0;
 
-        if (horizontal !=0 || vertical != 0)
-        {
-        	attemptMove<Wall> (horizontal, vertical);
-        }
+      horizontal = (int)(Input.GetAxisRaw("Horizontal"));
+      vertical = (int)(Input.GetAxisRaw("Vertical"));
+
+      if(horizontal != 0)
+      {
+      	vertical = 0;
+      }
+
+      if (horizontal !=0 || vertical != 0)
+      {
+      	attemptMove<Wall> (horizontal, vertical);
+      }
     }
 
     private void changeRooms()
@@ -117,24 +127,24 @@ public class Player : MovingObject
 
       if(didMove)
       {
-        SoundManager.instance.randomizeSfx(moveSound1, moveSound2);
-        moving = true;
         int newX = (int)gameObject.transform.position.x + xDir;
         int newY = (int)gameObject.transform.position.y + yDir;
         destinationTile = new Vector3(newX, newY, 0);
-        Invoke("finishMoving", timeToMove);
-
-        // yield return new WaitForSeconds(GameManager.instance.setPlayeray);
+        StartCoroutine(handleMove());
       }
 
     	checkIfGameOver();
       return didMove;
     }
 
-    private void finishMoving()
+    IEnumerator handleMove()
     {
+      moving = true;
+      SoundManager.instance.randomizeSfx(moveSound1, moveSound2);
+      yield return new WaitForSeconds(speed);
       moving = false;
     }
+
 
     protected override void onCantMove<T>(T component)
     {
@@ -147,6 +157,7 @@ public class Player : MovingObject
 
     public void takeDamage(int loss)
     {
+      if (isInvincible) return;
     	animator.SetTrigger("playerHit");
     	food -= loss;
         foodText.text = "Food: " + food;

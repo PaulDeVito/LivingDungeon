@@ -201,7 +201,7 @@ public class DungeonManager : MonoBehaviour
   {
     int score = generateEnemyScore(room);
     int[] values = new int[] {3,2,1};
-    int[] probabilities = new int[] {97,92,40};
+    int[] probabilities = new int[] {97,70,40};
     int numEnemies = resolveGenerationProbability(values, probabilities, score);
     if (numUnopenedDoors <= 1 && numOpenedDoors >= minDoorsOnFloor / 2)
     {

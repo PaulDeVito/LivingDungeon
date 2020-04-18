@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
 	public static GameManager instance;
 	public static DungeonManager dungeonManager;
-	public float turnDelay = 0.1f;
+	public static float baseEnemySpeed = 0.1f;
 
 
 	public float levelStartDelay = 2f;
@@ -108,18 +108,7 @@ public class GameManager : MonoBehaviour
 
   void Update()
   {
-		moveEnemies();
   }
-
-	void moveEnemies()
-	{
-		if(enemiesMoving)
-    	return;
-
-		// moveInactiveEnemies();
-		StartCoroutine(moveActiveEnemies());
-	}
-
 
 
   public void addEnemyToList(Enemy script)
@@ -127,36 +116,6 @@ public class GameManager : MonoBehaviour
   	enemies.Add(script);
   }
 
-	private void moveInactiveEnemies()
-	{
-		foreach(Enemy enemy in inactiveEnemies)
-		{
-			enemy.backgroundMove();
-		}
-	}
-
-  IEnumerator moveActiveEnemies()
-  {
-  	enemiesMoving = true;
-  	yield return new WaitForSeconds(turnDelay);
-  	// if (activeEnemies.Count == 0)
-  	// {
-  	// 	yield return new WaitForSeconds(turnDelay);
-  	// }
-
-  	for (int i = 0; i < enemies.Count; i++)
-  	{
-			if (enemies[i].gameObject.transform.parent.gameObject.activeSelf)
-			{
-				enemies[i].activeMove();
-				yield return new WaitForSeconds(enemies[i].moveAnimationTime);
-			} else {
-				enemies[i].backgroundMove();
-			}
-  	}
-
-  	enemiesMoving = false;
-  }
 
 	public static DungeonManager getDungeonManager()
 	{
