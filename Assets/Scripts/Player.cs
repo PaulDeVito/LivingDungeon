@@ -160,7 +160,7 @@ public class Player : MovingObject
       if (isInvincible) return;
     	animator.SetTrigger("playerHit");
     	food -= loss;
-        foodText.text = "Food: " + food;
+      foodText.text = "Food: " + food;
     	checkIfGameOver();
     }
 

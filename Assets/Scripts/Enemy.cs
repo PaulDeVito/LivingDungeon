@@ -38,7 +38,7 @@ public class Enemy : MovingObject
 			StartCoroutine(startMove());
 		}
 	}
-	
+
 	IEnumerator startMove()
 	{
 		moving = true;
@@ -59,7 +59,7 @@ public class Enemy : MovingObject
 
     	base.attemptMove<T>(xDir, yDir);
     	skipMove = true;
-      return true;
+      	return true;
     }
 
     public void Move()
@@ -143,6 +143,6 @@ public class Enemy : MovingObject
     	Player hitPlayer = component as Player;
     	hitPlayer.takeDamage(playerDamage);
     	animator.SetTrigger("enemyAttack");
-      SoundManager.instance.randomizeSfx(attackSound1, attackSound2);
+      	SoundManager.instance.randomizeSfx(attackSound1, attackSound2);
     }
 }
