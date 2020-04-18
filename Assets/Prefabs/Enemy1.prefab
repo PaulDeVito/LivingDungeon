@@ -121,6 +121,8 @@ MonoBehaviour:
   inverseAnimationTime: 0
   playerDamage: 40
   range: 5
+  wanderSpeed: 4
+  chaseSpeed: 1.5
   attackSound1: {fileID: 8300000, guid: 0db8cac2749584a009540aa5671ee80d, type: 3}
   attackSound2: {fileID: 8300000, guid: 114514a3b3697484ebaa08f7fbf842d3, type: 3}
 --- !u!65 &7398988072069153556

@@ -456,6 +456,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 805467896258002059, guid: ac7aff399f98f144ba53831679bbfc30,
+        type: 3}
+      propertyPath: far clip plane
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 805467896258002036, guid: ac7aff399f98f144ba53831679bbfc30,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -510,11 +515,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 805467896258002059, guid: ac7aff399f98f144ba53831679bbfc30,
-        type: 3}
-      propertyPath: far clip plane
-      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ac7aff399f98f144ba53831679bbfc30, type: 3}

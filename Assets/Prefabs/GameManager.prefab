@@ -87,7 +87,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 493d8187741c8364391d1a1eb0ab5e80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnDelay: 0.5
+  turnDelay: 0.1
   levelStartDelay: 2
   playerFoodPoints: 100
 --- !u!114 &-4279308927584409064
