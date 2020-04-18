@@ -13,36 +13,37 @@ public class GameManager : MonoBehaviour
 	public float levelStartDelay = 2f;
 	public int playerFoodPoints = 100;
 
-  private static Text levelText;
-  private static GameObject levelImage;
+  	private static Text levelText;
+  	private static GameObject levelImage;
 	private static List<Enemy> enemies;
 	private static List<Enemy> activeEnemies;
 	private static List<Enemy> inactiveEnemies;
 	private bool enemiesMoving;
-  private bool doingSetup;
+  	private bool doingSetup;
 
-  void Awake()
-  {
-  	if (instance == null)
-  		instance = this;
-  	else if (instance != this)
-  		Destroy(gameObject);
+  	void Awake()
+  	{
+  		if (instance == null)
+  			instance = this;
+  		else if (instance != this)
+  			Destroy(gameObject);
 
-    Debug.Log("Game Manager Awake");
-  	DontDestroyOnLoad(gameObject);
+		Debug.ClearDeveloperConsole();
+    	Debug.Log("Game Start");
+  		DontDestroyOnLoad(gameObject);
 
-  	enemies = new List<Enemy>();
-  	activeEnemies = new List<Enemy>();
-  	inactiveEnemies = new List<Enemy>();
+  		enemies = new List<Enemy>();
+  		activeEnemies = new List<Enemy>();
+  		inactiveEnemies = new List<Enemy>();
 		dungeonManager = GetComponent<DungeonManager>();
-    initGame();
+    	initGame();
   }
 
-  public static void triggerRoomChange()
-  {
-      dungeonManager.setupNextRoom();
-			categorizeEnemies();
-  }
+  	public static void triggerRoomChange()
+  	{
+  	    dungeonManager.setupNextRoom();
+		categorizeEnemies();
+  	}
 
 	private static void categorizeEnemies()
 	{
