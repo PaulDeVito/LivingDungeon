@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
   		else if (instance != this)
   			Destroy(gameObject);
 
-		Debug.ClearDeveloperConsole();
     	Debug.Log("Game Start");
   		DontDestroyOnLoad(gameObject);
 
