@@ -15,6 +15,8 @@ public class Room
   public int height;
   public Vector3 mapCoordinates;
 
+  public Transform boardHolder;
+
   public class DoorTile
   {
     public Direction exitDirection;

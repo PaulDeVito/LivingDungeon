@@ -59,8 +59,6 @@ public class GameManager : MonoBehaviour
 				inactiveEnemies.Add(enemy);
 			}
 		}
-		Debug.Log("Total active enemies: " + activeEnemies.Count);
-		Debug.Log("Total inactive enemies: " + inactiveEnemies.Count);
 	}
 
   void initGame()

@@ -15,26 +15,27 @@ public enum Direction
 public class DungeonManager : MonoBehaviour
 {
   public static BoardManager boardManager;
+  
   public int numFloors = 5;
   public int currentFloor;
   public bool stairsPlaced;
 
-  public static int mapWidth = 30;
-  public static int mapHeight = 30;
+  public static int mapWidth = 15;
+  public static int mapHeight = 10;
 
-  public int maxDoorsOnFloor = 20;
+  public int maxDoorsOnFloor = 25;
   public int minDoorsOnFloor = 15;
-  public static int numDoorsPlaced = 0;
-	public static int numOpenedDoors = 0;
-	public static int numUnopenedDoors = 0;
+  private int numDoorsPlaced = 0;
+	private int numOpenedDoors = 0;
+	private int numUnopenedDoors = 0;
 
   public int maxItemsOnFloor = 15;
   public int minItemsOnFloor = 5;
-  public static int numItemsPlaced = 0;
+  public int numItemsPlaced = 0;
 
   public int maxEnemiesOnFloor = 10;
   public int minEnemiesOnFloor = 5;
-  public static int numEnemiesPlaced = 0;
+  public int numEnemiesPlaced = 0;
 
   private static Room[,] roomMap;
   private Room currentRoom;
@@ -68,6 +69,8 @@ public class DungeonManager : MonoBehaviour
 
     boardManager.initializeBoardFromRoom(newRoom);
     boardManager.setPlayerPosition(newRoom.getRandomEmptyPosition());
+    EventManager.TriggerEnterRoomEvent(newRoom);
+
 
     return newRoom;
   }
@@ -94,10 +97,11 @@ public class DungeonManager : MonoBehaviour
       boardManager.initializeBoardFromRoom(roomEntered);
     }
 
-    boardManager.changeRooms(roomEntered, currentRoom);
+    boardManager.changeRooms(roomEntered);
     Vector3 playerStartPosition = roomEntered.getDoorPositionAtDirection(entranceDirection)
                                             + getDirectionOffsetVector(exitDirection);
     boardManager.setPlayerPosition(playerStartPosition);
+    EventManager.TriggerEnterRoomEvent(roomEntered);
 
     currentRoom = roomEntered;
   }
@@ -187,6 +191,7 @@ public class DungeonManager : MonoBehaviour
       numItems = 0;
     }
 
+    numItemsPlaced += numItems;
     return numItems;
   }
 
@@ -218,7 +223,7 @@ public class DungeonManager : MonoBehaviour
       numEnemies = 0;
     }
 
-
+    numEnemiesPlaced += numEnemies;
     return numEnemies;
   }
 
@@ -243,7 +248,7 @@ public class DungeonManager : MonoBehaviour
     if (numDoorsPlaced == maxDoorsOnFloor)
     {
       int score = Random.Range(0,100);
-      if (score > 70)
+      if (score > 100 - 30 * numUnopenedDoors);
       {
         return true;
       }
@@ -254,7 +259,7 @@ public class DungeonManager : MonoBehaviour
       if (room.getNumDoors() == 1)
       {
         int score = Random.Range(0,100);
-        if (score > 60)
+        if (score > (numOpenedDoors - minDoorsOnFloor) * 5)
         {
           return true;
         }

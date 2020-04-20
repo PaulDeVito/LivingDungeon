@@ -32,8 +32,8 @@ public class BoardManager : MonoBehaviour
 		numBoards++;
 		GameObject roomObject = new GameObject();
 		roomObject.name = "Room" + numBoards;
-		Transform currentBoard = roomObject.transform;
-		boardMap[room.getXCoordinate(), room.getYCoordinate()] = currentBoard;
+		Transform boardHolder = roomObject.transform;
+		boardMap[room.getXCoordinate(), room.getYCoordinate()] = boardHolder;
 		Room.TileType[,] grid = room.getTileGrid();
 		for (int x = 0; x < room.width; x++)
 		{
@@ -47,7 +47,7 @@ public class BoardManager : MonoBehaviour
 						boardTile = floorTiles[Random.Range(0,floorTiles.Length)];
 						break;
 					case Room.TileType.Stairs:
-						layFloorTile(currentBoard, x, y);
+						layFloorTile(boardHolder, x, y);
 						boardTile = stairs;
 						break;
 					case Room.TileType.Door:
@@ -60,11 +60,11 @@ public class BoardManager : MonoBehaviour
 						boardTile = wallTiles [Random.Range(0, wallTiles.Length)];
 						break;
 					case Room.TileType.Food:
-						layFloorTile(currentBoard, x, y);
+						layFloorTile(boardHolder, x, y);
 						boardTile = foodTiles [Random.Range(0, foodTiles.Length)];
 						break;
 					case Room.TileType.Enemy:
-						layFloorTile(currentBoard, x, y);
+						layFloorTile(boardHolder, x, y);
 						boardTile = enemyTiles [Random.Range(0, enemyTiles.Length)];
 						break;
 					default:
@@ -74,12 +74,15 @@ public class BoardManager : MonoBehaviour
 
 				GameObject boardTileInstance =
 					Instantiate (boardTile, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
-				boardTileInstance.transform.SetParent (currentBoard);
+				boardTileInstance.transform.SetParent (boardHolder);
 			}
 		}
 
+		room.boardHolder = boardHolder;
+
 		incrementAllBoardDepths();
-		allBoards.Add(currentBoard);
+		allBoards.Add(boardHolder);
+		EventManager.TriggerBuildRoomEvent(room);
 	}
 
 	private void incrementAllBoardDepths()
@@ -104,7 +107,7 @@ public class BoardManager : MonoBehaviour
 		return boardMap[room.getXCoordinate(), room.getYCoordinate()];
 	}
 
-	public void changeRooms(Room newRoom, Room oldRoom)
+	public void changeRooms(Room newRoom)
 	{
 		incrementAllBoardDepths();
 		getBoardFromRoom(newRoom).position = new Vector3(0, 0, 0);

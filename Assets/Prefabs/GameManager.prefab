@@ -87,7 +87,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 493d8187741c8364391d1a1eb0ab5e80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnDelay: 0.1
   levelStartDelay: 2
   playerFoodPoints: 100
 --- !u!114 &-4279308927584409064
@@ -105,9 +104,11 @@ MonoBehaviour:
   numFloors: 5
   currentFloor: 0
   stairsPlaced: 0
-  maxDoorsOnFloor: 20
+  maxDoorsOnFloor: 25
   minDoorsOnFloor: 15
-  maxItemsOnFloor: 15
-  minItemsOnFloor: 5
-  maxEnemiesOnFloor: 10
-  minEnemiesOnFloor: 5
+  maxItemsOnFloor: 20
+  minItemsOnFloor: 10
+  numItemsPlaced: 0
+  maxEnemiesOnFloor: 15
+  minEnemiesOnFloor: 10
+  numEnemiesPlaced: 0
